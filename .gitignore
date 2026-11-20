@@ -1,0 +1,5 @@
+node_modules/
+dist/
+# Claude's OAuth client registrations (MCP_DATA_DIR)
+.data/
+.env
