@@ -3,3 +3,6 @@ dist/
 # Claude's OAuth client registrations (MCP_DATA_DIR)
 .data/
 .env
+.env.*
+!.env.example
+*.pm2.config.js
