@@ -31,20 +31,40 @@ Pieces in other repos:
 
 ## Tools
 
-| Tool | API route | Changes anything? |
-|---|---|---|
-| `find_campaign` | `GET /getStatsCampaigns` | no |
-| `campaign_summary` | `GET /getCampaignStats` | no |
-| `flags_on_campaign` | `GET /getCampaignStats?include=flags` | no |
-| `executors_on_campaign` | `GET /getCampaignStats?include=executors` | no |
-| `tasks_per_day` | `GET /getCampaignStats?include=days` | no |
-| `overall_summary` | `GET /getStatsOverview` | no |
-| `agency_performance` | `GET /getAgencyPerformance` | no |
-| `generate_report` | `POST /createGenerateReportRequest` (PDF or ZIP, emailed) | **yes**, Claude asks first |
-| `report_status` | `GET /getReportJob` | no |
-| `generate_excel_report` | `GET /generateExcelReport` (15 min download link) | **yes**, Claude asks first |
+25 tools. All are read-only except the two that start a report (Claude asks first).
 
-Add a question: one `tool(...)` block in `src/tools.ts`, plus a route or `include=` block in the API if the data is not served yet.
+| File in `src/tools/` | Tool | API route |
+|---|---|---|
+| `stats.ts` | `find_campaign` | `GET /getStatsCampaigns` |
+| | `campaign_summary`, `flags_on_campaign`, `executors_on_campaign`, `tasks_per_day` | `GET /getCampaignStats` (`include=flags`, `executors`, `days`) |
+| | `overall_summary` | `GET /getStatsOverview` |
+| `campaigns.ts` | `my_campaigns` | `GET /getCampaignsByUserId` |
+| | `campaign_details` | `GET /getCampaignDetailsByCampaignId` (questionnaire and geofence shape left out) |
+| | `campaign_team` | `GET /getCampaignHierarchy` (people tree, no phones) |
+| | `my_team` | `GET /getUserBySuperiorId` (no phones) |
+| `flags.ts` | `flagged_summary` | `GET /getFlaggedSummary` |
+| | `flag_reasons` | `GET /getValidationReasonCatalog` |
+| `tasks.ts` | `list_tasks` | `GET /getQuestionaireResponseByGigIdV2` (max 10 per page) |
+| `stores.ts` | `list_stores` | `GET /getBrandingMedia` (account admins see their stores, gOGig admins all; first N rows plus a total) |
+| | `store_types` | `GET /getBrandingMediaTypes` |
+| `agencies.ts` | `agency_performance` | `GET /getAgencyPerformance` |
+| | `flagged_tasks_by_agency` | `GET /getAgencyFlaggedTasks` |
+| `insights.ts` | `attention_summary`, `attention_list` | `GET /getinsightsSummary`, `GET /getInsights` |
+| | `activity_log` | `GET /campaign/:id/activity-log`, `GET /account/activity-log` |
+| `reports.ts` | `generate_report` (**asks first**) | `POST /createGenerateReportRequest` (PDF or ZIP, emailed) |
+| | `report_status` | `GET /getReportJob` |
+| | `generate_excel_report` (**asks first**) | `GET /generateExcelReport` (15 min download link) |
+| `admin.ts` | `executor_app_status`, `review_queue` | `GET /executorAppStatus`, `GET /manualReviewStats` (gOGig admin roles only) |
+
+### Rules for adding a tool
+
+- **One `tool(...)` block** in the file for its area (or a new file, registered in `src/tools/index.ts`), plus a route in the API if the data is not served yet.
+- **Only wrap a route that checks the caller's access to the id it is given** (is this person on that campaign, account or team?). The tools pass the person's own token, so the route is the only guard. Routes that take any `gigId`, `taskId`, `userId` or `accountId` from any logged-in user are NOT wrapped until the API checks them: `getTaskByTaskId`, `userTaskReports`, `getUsersWorkingOnAGig`, `getMapPaths`, `getAllResponses`, `getGeofence`, `getAgenciesByBrandId`, and the `/credits/accounts|campaigns` reads. Also skipped: `getStoresByUserId` (loads every task of every campaign; `my_campaigns` covers it) and `getManualUploadStores` (part of the add-a-task-by-hand flow).
+- **Read-only by default.** Tools that start work pass `false` as the last argument to `tool()`, so Claude asks first.
+- **Phone numbers never reach Claude.** `redact()` in `src/tools/kit.ts` drops any key containing `phone`, `mobile`, `contact` or `whatsapp` from every result.
+- **Keep results small.** Whitelist fields with `pick()`, and cap page sizes; Claude pays for every byte it reads.
+
+`npm run build` deletes `dist/` first, so a stale compiled file can never shadow a newer one.
 
 ## The `mcp_gogig` client
 

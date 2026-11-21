@@ -15,7 +15,7 @@ import { homedir } from "node:os";
 import { basename, join } from "node:path";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { makeApi, registerGogigTools, SaveFile } from "./tools";
+import { makeApi, registerGogigTools, SaveFile } from "./tools/index";
 
 const API_URL = process.env.GOGIG_API_URL || "http://localhost:3000";
 const SAVE_DIR = process.env.GOGIG_SAVE_DIR || join(homedir(), "Downloads");

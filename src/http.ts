@@ -33,7 +33,7 @@ import { requireBearerAuth } from "@modelcontextprotocol/sdk/server/auth/middlew
 import { getOAuthProtectedResourceMetadataUrl, mcpAuthRouter } from "@modelcontextprotocol/sdk/server/auth/router.js";
 import { DOWNLOAD_TTL_MINUTES, getDownload, putDownload } from "./downloads";
 import { GogigOAuthProvider, inspectGogigToken } from "./oauth";
-import { makeApi, registerGogigTools, SaveFile } from "./tools";
+import { makeApi, registerGogigTools, SaveFile } from "./tools/index";
 
 const API_URL = process.env.GOGIG_API_URL || "http://localhost:3000";
 const UI_URL = (process.env.GOGIG_UI_URL || "").replace(/\/+$/, "");

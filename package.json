@@ -1,6 +1,6 @@
 {
   "name": "gogig-mcp",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "private": true,
   "description": "MCP server that lets Claude read gogig campaign data and create reports, as the signed-in gogig user",
   "license": "UNLICENSED",
@@ -8,7 +8,8 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "tsc -p .",
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "build": "npm run clean && tsc -p .",
     "typecheck": "tsc -p . --noEmit",
     "start": "node dist/http.js",
     "start:stdio": "node dist/stdio.js",

@@ -6,7 +6,7 @@
  * until it expires, so links are long, unguessable and short-lived.
  */
 import { randomBytes } from "node:crypto";
-import type { DownloadedFile } from "./tools";
+import type { DownloadedFile } from "./tools/index";
 
 const TTL_MS = 15 * 60_000;
 const store = new Map<string, { file: DownloadedFile; expiresAt: number }>();
